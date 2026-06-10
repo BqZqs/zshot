@@ -3,6 +3,8 @@ add_subdirectory(capture)
 add_subdirectory(panel)
 
 set(WIDGET_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/colorpickerwidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/colorpickerwidget.h
     ${CMAKE_CURRENT_SOURCE_DIR}/draggablewidgetmaker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/draggablewidgetmaker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/imagelabel.cpp
