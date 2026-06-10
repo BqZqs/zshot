@@ -2,23 +2,13 @@ name: Build and Release (Windows)
 
 on:
   push:
-    branches:
-      - main
-      - master
-    tags:
-      - 'v*'
+    branches: [main, master]
+    tags: ['v*']
   pull_request:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
   workflow_dispatch:
-
-env:
-  PRODUCT: zshot
 
 jobs:
   windows-build:
-    name: VS 2022 x64-portable
     runs-on: windows-2022
     strategy:
       fail-fast: false
@@ -26,91 +16,46 @@ jobs:
         qt_ver: ["6.5.3"]
         qt_arch: ["win64_msvc2019_64"]
         qt_arch_install: ["msvc2019_64"]
-        pak_arch: ["win64"]
 
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
 
       - name: Get Version
         shell: bash
         run: |
           VERSION=$(grep 'set.*ZSHOT_VERSION' CMakeLists.txt | sed 's/[^0-9.]*//' | sed 's/)//g')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "======= ZSHOT VERSION ========"
-          echo "${VERSION}"
-          echo "================================"
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      - uses: jurplel/install-qt-action@v4
         with:
           version: ${{ matrix.qt_ver }}
           cache: 'true'
-          cache-key-prefix: 'install-qt-action-${{ matrix.qt_ver }}'
           target: 'desktop'
           arch: ${{ matrix.qt_arch }}
           modules: 'qtimageformats'
-          dir: '${{ github.workspace }}/Qt/'
 
-      - name: Create Build Dir
-        shell: pwsh
-        run: New-Item -Path "$env:GITHUB_WORKSPACE\build" -ItemType Directory -Force
-
-      - name: Configure CMake
-        working-directory: build
-        shell: pwsh
+      - name: Configure
         run: |
-          cmake .. -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_PREFIX_PATH="$env:GITHUB_WORKSPACE\Qt\${{ matrix.qt_ver }}\${{ matrix.qt_arch_install }}" `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DUSE_PORTABLE_CONFIG=ON
+          mkdir build && cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DUSE_PORTABLE_CONFIG=ON
 
       - name: Compile
         working-directory: build
-        shell: pwsh
         run: cmake --build . --config Release --parallel
 
-      - name: Package (ZIP)
+      - name: Package
         working-directory: build
-        shell: pwsh
-        run: cpack -G ZIP -B "$env:GITHUB_WORKSPACE\build\Package"
+        run: cpack -G ZIP
 
-      - name: Prepare Artifact
-        shell: pwsh
-        run: |
-          New-Item -Path "$env:GITHUB_WORKSPACE\build\Package\portable" -ItemType Directory -Force
-          Move-Item -Path "$env:GITHUB_WORKSPACE\build\Package\zshot-*-${{ matrix.pak_arch }}.zip" `
-            -Destination "$env:GITHUB_WORKSPACE\build\Package\portable\zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip"
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: zshot-${{ env.VERSION }}-win-${{ matrix.pak_arch }}-portable
-          path: |
-            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
-          overwrite: true
+          name: zshot-${{ env.VERSION }}-win64-portable
+          path: build/zshot-*-win64.zip
 
-      - name: Create Release
+      - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           name: zshot ${{ env.VERSION }}
-          body: |
-            ## zshot ${{ env.VERSION }}
-
-            丐版 flameshot - 轻量级 Windows 截图工具
-
-            ### 功能
-            - 自由绘制、马赛克、矩形/圆形工具
-            - Pin 截图到桌面
-            - 16 种预设颜色
-            - 像素风格界面，少女粉主题
-
-            ### 使用方法
-            解压后运行 `zshot.exe`
-          files: |
-            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
-          draft: false
-          prerelease: false
+          files: build/zshot-*-win64.zip

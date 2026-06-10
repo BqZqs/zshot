@@ -1,40 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <!-- cap top (hot pink) -->
   <rect x="3" y="0" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="0" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="0" width="3" height="3" fill="#FF69B4"/>
+  <rect x="6" y="0" width="3" height="3" fill="#FFB6C1"/>
+  <rect x="9" y="0" width="3" height="3" fill="#FFB6C1"/>
   <rect x="12" y="0" width="3" height="3" fill="#FFB6C1"/>
-  <rect x="15" y="0" width="3" height="3" fill="#FFB6C1"/>
-  <rect x="18" y="0" width="3" height="3" fill="#FFB6C1"/>
-  <!-- cap body -->
-  <rect x="3" y="3" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="3" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="3" width="3" height="3" fill="#FF69B4"/>
-  <rect x="12" y="3" width="3" height="3" fill="#FF69B4"/>
-  <rect x="15" y="3" width="3" height="3" fill="#FFB6C1"/>
+  <rect x="15" y="0" width="3" height="3" fill="#FF69B4"/>
+  <rect x="0" y="3" width="3" height="3" fill="#FF69B4"/>
+  <rect x="3" y="3" width="3" height="3" fill="#FF1493"/>
+  <rect x="6" y="3" width="3" height="3" fill="#FF1493"/>
+  <rect x="9" y="3" width="3" height="3" fill="#FF1493"/>
+  <rect x="12" y="3" width="3" height="3" fill="#FF1493"/>
+  <rect x="15" y="3" width="3" height="3" fill="#FF69B4"/>
   <rect x="18" y="3" width="3" height="3" fill="#FFB6C1"/>
-  <rect x="3" y="6" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="6" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="6" width="3" height="3" fill="#FF69B4"/>
-  <rect x="12" y="6" width="3" height="3" fill="#FFB6C1"/>
-  <!-- marker body (hot pink) -->
-  <rect x="3" y="9" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="9" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="9" width="3" height="3" fill="#FF69B4"/>
-  <rect x="12" y="9" width="3" height="3" fill="#FFB6C1"/>
-  <rect x="3" y="12" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="12" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="12" width="3" height="3" fill="#FF69B4"/>
-  <rect x="12" y="12" width="3" height="3" fill="#FFB6C1"/>
-  <rect x="3" y="15" width="3" height="3" fill="#FF69B4"/>
-  <rect x="6" y="15" width="3" height="3" fill="#FF69B4"/>
-  <rect x="9" y="15" width="3" height="3" fill="#FF69B4"/>
-  <rect x="12" y="15" width="3" height="3" fill="#FFB6C1"/>
-  <!-- tip (deep pink, angled) -->
+  <rect x="0" y="6" width="3" height="3" fill="#FF69B4"/>
+  <rect x="3" y="6" width="3" height="3" fill="#FF1493"/>
+  <rect x="6" y="6" width="3" height="3" fill="#FF1493"/>
+  <rect x="9" y="6" width="3" height="3" fill="#FF1493"/>
+  <rect x="12" y="6" width="3" height="3" fill="#FF1493"/>
+  <rect x="15" y="6" width="3" height="3" fill="#FF69B4"/>
+  <rect x="18" y="6" width="3" height="3" fill="#FFB6C1"/>
+  <rect x="0" y="9" width="3" height="3" fill="#FF69B4"/>
+  <rect x="3" y="9" width="3" height="3" fill="#FF1493"/>
+  <rect x="6" y="9" width="3" height="3" fill="#FF1493"/>
+  <rect x="9" y="9" width="3" height="3" fill="#FF1493"/>
+  <rect x="12" y="9" width="3" height="3" fill="#FF1493"/>
+  <rect x="15" y="9" width="3" height="3" fill="#FF69B4"/>
+  <rect x="18" y="9" width="3" height="3" fill="#FFB6C1"/>
+  <rect x="0" y="12" width="3" height="3" fill="#FF69B4"/>
+  <rect x="3" y="12" width="3" height="3" fill="#FF1493"/>
+  <rect x="6" y="12" width="3" height="3" fill="#FF1493"/>
+  <rect x="9" y="12" width="3" height="3" fill="#FF1493"/>
+  <rect x="12" y="12" width="3" height="3" fill="#FF1493"/>
+  <rect x="15" y="12" width="3" height="3" fill="#FF69B4"/>
+  <rect x="18" y="12" width="3" height="3" fill="#FFB6C1"/>
+  <rect x="3" y="15" width="3" height="3" fill="#FF1493"/>
+  <rect x="6" y="15" width="3" height="3" fill="#FF1493"/>
+  <rect x="9" y="15" width="3" height="3" fill="#FF1493"/>
+  <rect x="12" y="15" width="3" height="3" fill="#FF1493"/>
+  <rect x="15" y="15" width="3" height="3" fill="#FF1493"/>
   <rect x="6" y="18" width="3" height="3" fill="#FF1493"/>
   <rect x="9" y="18" width="3" height="3" fill="#FF1493"/>
   <rect x="12" y="18" width="3" height="3" fill="#FF1493"/>
-  <rect x="9" y="21" width="3" height="3" fill="#FF1493"/>
-  <rect x="12" y="21" width="3" height="3" fill="#FF1493"/>
-  <rect x="15" y="21" width="3" height="3" fill="#FF1493"/>
 </svg>

@@ -1,8 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
-
 #include "globalvalues.h"
-
 #include <QApplication>
 #include <QFontMetrics>
 
@@ -13,8 +9,7 @@ int GlobalValues::buttonBaseSize()
 
 QString GlobalValues::versionInfo()
 {
-    return QStringLiteral("Zshot " APP_VERSION " (" ZSHOT_GIT_HASH ")"
-                          "\nCompiled with Qt " QT_VERSION_STR);
+    return QStringLiteral("Zshot " APP_VERSION);
 }
 
 QString GlobalValues::iconPath()

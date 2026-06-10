@@ -1,4 +1,4 @@
-# Utils module sources
+# utils module sources
 set(UTILS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/abstractlogger.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/abstractlogger.h
@@ -6,12 +6,16 @@ set(UTILS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/colorutils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/confighandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/confighandler.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/desktopfileparse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/desktopfileparse.h
     ${CMAKE_CURRENT_SOURCE_DIR}/desktopinfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/desktopinfo.h
     ${CMAKE_CURRENT_SOURCE_DIR}/filenamehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/filenamehandler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/globalvalues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/globalvalues.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/history.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/history.h
     ${CMAKE_CURRENT_SOURCE_DIR}/monitorpreview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/monitorpreview.h
     ${CMAKE_CURRENT_SOURCE_DIR}/pathinfo.cpp
@@ -28,5 +32,9 @@ set(UTILS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/systemnotification.h
     ${CMAKE_CURRENT_SOURCE_DIR}/valuehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/valuehandler.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/waylandutils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/waylandutils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/winlnkfileparse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/winlnkfileparse.h
 )
 set(UTILS_SOURCES ${UTILS_SOURCES} PARENT_SCOPE)

@@ -7,8 +7,19 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QVersionNumber>
+#include <QWindow>
 
 class CaptureWidget;
+class ConfigWindow;
+class InfoWindow;
+class CaptureLauncher;
+class QWidget;
+#ifdef ENABLE_IMGUR
+class UploadHistory;
+#endif
+#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
+#endif
 
 enum ErrCode : uint8_t
 {
@@ -26,23 +37,72 @@ class Zshot : public QObject
     Q_OBJECT
 
 public:
+    enum Origin
+    {
+        CLI,
+        DAEMON
+    };
+
     static Zshot* instance();
 
 public slots:
     CaptureWidget* gui(
       const CaptureRequest& req = CaptureRequest::GRAPHICAL_MODE);
-    void requestCapture(const CaptureRequest& request);
-    void exportCapture(const QPixmap& p,
-                       const QRect& selection,
-                       const CaptureRequest& req);
+    void screen(CaptureRequest req, int const screenNumber = -1);
+    void full(const CaptureRequest& req);
+    void launcher();
+    void config();
+
+    void info();
+
+#ifdef ENABLE_IMGUR
+    void history();
+#endif
+
+    void openSavePath();
+
+    QVersionNumber getVersion();
+
+public:
+    static void setOrigin(Origin origin);
+    static Origin origin();
+    void setExternalWidget(bool b);
+    bool haveExternalWidget();
 
 signals:
     void captureTaken(QPixmap p);
     void captureFailed();
 
+public slots:
+    void requestCapture(const CaptureRequest& request);
+    void exportCapture(const QPixmap& p,
+                       QRect& selection,
+                       const CaptureRequest& req);
+
 private:
     Zshot();
     bool resolveAnyConfigErrors();
 
+    // class members
+    static Origin m_origin;
+    bool m_haveExternalWidget;
+
     QPointer<CaptureWidget> m_captureWindow;
+    QPointer<InfoWindow> m_infoWindow;
+    QPointer<CaptureLauncher> m_launcherWindow;
+    QPointer<ConfigWindow> m_configWindow;
+
+#if defined(Q_OS_MACOS)
+public:
+    void showDockIcon(QWidget* window);
+
+private:
+    void onWindowVisibilityChanged(QWindow::Visibility newVisibility);
+    int m_dockIconVisibleCount = 0;
+#endif
+
+#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
+#endif
+#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
+#endif
 };

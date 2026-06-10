@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
-
 #include "core/capturerequest.h"
 #include "core/zshot.h"
-#include "utils/confighandler.h"
 #include "widgets/capture/capturewidget.h"
 
 #include <QApplication>
 
-// Required for saving button list QList<CaptureTool::Type>
 Q_DECLARE_METATYPE(QList<int>)
 
 int main(int argc, char* argv[])
@@ -26,11 +22,9 @@ int main(int argc, char* argv[])
 
     Zshot* zshot = Zshot::instance();
 
-    QObject::connect(
-      zshot, &Zshot::captureTaken, &app, [&app](const QPixmap&) {
-          app.exit(E_OK);
-      });
-
+    QObject::connect(zshot, &Zshot::captureTaken, &app, [&app](const QPixmap&) {
+        app.exit(E_OK);
+    });
     QObject::connect(zshot, &Zshot::captureFailed, &app, [&app]() {
         app.exit(E_ABORTED);
     });

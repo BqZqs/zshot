@@ -1,29 +1,18 @@
-# Build
 build/
 cmake-build-*/
 out/
-
-# IDE
 .idea/
 .vs/
 .vscode/
 *.user
 *.suo
-
-# Qt
 *.pro.user
 moc_*.cpp
 ui_*.h
 qrc_*.cpp
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Package
 Package/
 _CPack_Packages/
-
-# Temp
 *.tmp
 *.log

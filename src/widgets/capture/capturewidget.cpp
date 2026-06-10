@@ -11,7 +11,6 @@
 
 #include "capturewidget.h"
 #include "config/cacheutils.h"
-#include "config/generalconf.h"
 #include "core/zshot.h"
 #include "core/qguiappcurrentscreen.h"
 #include "tools/copy/copytool.h"
@@ -40,7 +39,9 @@
 #include <QWindow>
 
 #if !defined(DISABLE_UPDATE_CHECKER)
+#if !defined(DISABLE_UPDATE_CHECKER)
 #include "widgets/updatenotificationwidget.h"
+#endif
 #endif
 
 #define MOUSE_DISTANCE_TO_START_MOVING 3
@@ -269,7 +270,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
         m_configError = true;
     }
     connect(
-      ConfigHandler::getInstance(), &ConfigHandler::error, this, [=]() {
+      ConfigHandler::getInstance(), &ConfigHandler::error, this, [=, this]() {
           m_configError = true;
           m_configErrorResolved = false;
           OverlayMessage::instance()->update();
@@ -277,7 +278,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
     connect(ConfigHandler::getInstance(),
             &ConfigHandler::errorResolved,
             this,
-            [=]() {
+            [=, this]() {
                 m_configError = false;
                 m_configErrorResolved = true;
                 OverlayMessage::instance()->update();
@@ -374,7 +375,7 @@ void CaptureWidget::initButtons()
                 if (!shortcut.isNull()) {
                     auto shortcuts = newShortcut(shortcut, this, nullptr);
                     for (auto* sc : shortcuts) {
-                        connect(sc, &QShortcut::activated, this, [=]() {
+                        connect(sc, &QShortcut::activated, this, [=, this]() {
                             setState(b);
                         });
                     }
@@ -447,6 +448,13 @@ void CaptureWidget::onGridSizeChanged(int size)
 {
     m_gridSize = size;
     repaint();
+}
+
+void CaptureWidget::startColorGrab()
+{
+    if (m_sidePanel) {
+        m_sidePanel->startColorGrab();
+    }
 }
 
 void CaptureWidget::showxywh()
@@ -1258,7 +1266,7 @@ void CaptureWidget::initPanel()
             this,
             &CaptureWidget::onMoveCaptureToolDown);
 
-    m_sidePanel = new SidePanelWidget(this);
+    m_sidePanel = new SidePanelWidget(&m_context.screenshot, this);
     connect(m_sidePanel,
             &SidePanelWidget::colorChanged,
             this,
@@ -1275,6 +1283,22 @@ void CaptureWidget::initPanel()
             &CaptureWidget::toolSizeChanged,
             m_sidePanel,
             &SidePanelWidget::onToolSizeChanged);
+    connect(m_sidePanel,
+            &SidePanelWidget::togglePanel,
+            m_panel,
+            &UtilityPanel::toggle);
+    connect(
+      m_sidePanel, &SidePanelWidget::showPanel, m_panel, &UtilityPanel::show);
+    connect(
+      m_sidePanel, &SidePanelWidget::hidePanel, m_panel, &UtilityPanel::hide);
+    connect(m_sidePanel,
+            &SidePanelWidget::displayGridChanged,
+            this,
+            &CaptureWidget::onDisplayGridChanged);
+    connect(m_sidePanel,
+            &SidePanelWidget::gridSizeChanged,
+            this,
+            &CaptureWidget::onGridSizeChanged);
     // TODO replace with a CaptureWidget signal
     emit m_sidePanel->colorChanged(m_context.color);
     emit toolSizeChanged(m_context.toolSize);
@@ -1461,6 +1485,7 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
                 w->setAttribute(Qt::WA_DeleteOnClose);
                 w->activateWindow();
                 w->show();
+                Zshot::instance()->setExternalWidget(true);
             }
             break;
         case CaptureTool::REQ_INCREASE_TOOL_SIZE:
@@ -1631,6 +1656,9 @@ void CaptureWidget::initShortcuts()
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_TOGGLE_PANEL")),
                 this,
                 SLOT(togglePanel()));
+    newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_GRAB_COLOR")),
+                this,
+                SLOT(startColorGrab()));
 
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_RESIZE_LEFT")),
                 m_selection,

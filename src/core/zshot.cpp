@@ -3,22 +3,96 @@
 
 #include "zshot.h"
 #include "core/zshotdaemon.h"
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+#endif
+
+#if defined(Q_OS_MACOS)
+#include <QWindow>
+#include <objc/message.h>
+
+namespace {
+
+constexpr long NSApplicationActivationPolicyRegular = 0;
+constexpr long NSApplicationActivationPolicyAccessory = 1;
+
+void setActivationPolicy(long policy)
+{
+    auto sharedApp = reinterpret_cast<id (*)(id, SEL)>(objc_msgSend);
+    auto setPolicy = reinterpret_cast<void (*)(id, SEL, long)>(objc_msgSend);
+    id nsApp = sharedApp(reinterpret_cast<id>(objc_getClass("NSApplication")),
+                         sel_registerName("sharedApplication"));
+    setPolicy(nsApp, sel_registerName("setActivationPolicy:"), policy);
+}
+
+void setActivationPolicyRegular()
+{
+    setActivationPolicy(NSApplicationActivationPolicyRegular);
+}
+
+void setActivationPolicyAccessory()
+{
+    setActivationPolicy(NSApplicationActivationPolicyAccessory);
+}
+
+constexpr const char* visibleInDockProperty = "_visibleInDock";
+
+} // namespace
+
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 #include "config/configresolver.h"
+#include "core/qguiappcurrentscreen.h"
+#include "utils/abstractlogger.h"
 #include "utils/confighandler.h"
+#include "utils/screengrabber.h"
 #include "utils/screenshotsaver.h"
 #include "widgets/capture/capturewidget.h"
 
+
 #include <QApplication>
+#include <QBuffer>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QFile>
 #include <QMessageBox>
 #include <QThread>
 #include <QTimer>
+#include <QUrl>
+#include <QVersionNumber>
+
+#if defined(Q_OS_MACOS)
+#include <QScreen>
+#endif
 
 Zshot::Zshot()
-  : m_captureWindow(nullptr)
+  : m_haveExternalWidget(false)
+  , m_captureWindow(nullptr)
+#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
+#endif
+#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
+#endif
 {
     QString StyleSheet = CaptureButton::globalStyleSheet();
     qApp->setStyleSheet(StyleSheet);
+
+#if defined(Q_OS_MACOS)
+    // Request Screen Recording permission via the proper CoreGraphics API
+    if (!CGPreflightScreenCaptureAccess()) {
+        CGRequestScreenCaptureAccess();
+    }
+#endif
+#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
+    // Set global shortcuts for MacOS or Windows
+      QKeySequence(ConfigHandler().shortcut("TAKE_SCREENSHOT")), true, this);
+                     qApp,
+                     [this]() { gui(); });
+#endif
+#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
+      QKeySequence(ConfigHandler().shortcut("SCREENSHOT_HISTORY")), true, this);
+                     qApp,
+                     [this]() { history(); });
+#endif
 }
 
 Zshot* Zshot::instance()
@@ -33,7 +107,20 @@ CaptureWidget* Zshot::gui(const CaptureRequest& req)
         return nullptr;
     }
 
+#if defined(Q_OS_MACOS)
+    // This is required on MacOS because of Mission Control. If you'll switch to
+    // another Desktop you cannot take a new screenshot from the tray, you have
+    // to switch back to the Zshot Desktop manually. It is not obvious and a
+    // large number of users are confused and report a bug.
+    if (m_captureWindow != nullptr) {
+        m_captureWindow->close();
+        delete m_captureWindow;
+        m_captureWindow = nullptr;
+    }
+#endif
+
     if (nullptr == m_captureWindow) {
+        // TODO is this unnecessary now?
         int timeout = 5000; // 5 seconds
         const int delay = 100;
         QWidget* modalWidget = nullptr;
@@ -53,10 +140,20 @@ CaptureWidget* Zshot::gui(const CaptureRequest& req)
         }
 
         m_captureWindow = new CaptureWidget(req);
+
 #ifdef Q_OS_WIN
         m_captureWindow->show();
+#elif defined(Q_OS_MACOS)
+        if (ConfigHandler().useNativeFullscreen()) {
+            m_captureWindow->showFullScreen();
+        } else {
+            m_captureWindow->show();
+        }
+        m_captureWindow->activateWindow();
+        m_captureWindow->raise();
 #else
         m_captureWindow->showFullScreen();
+//        m_captureWindow->show(); // For CaptureWidget Debugging under Linux
 #endif
         return m_captureWindow;
     } else {
@@ -65,6 +162,191 @@ CaptureWidget* Zshot::gui(const CaptureRequest& req)
     }
 }
 
+void Zshot::screen(CaptureRequest req, const int screenNumber)
+{
+    if (!resolveAnyConfigErrors()) {
+        return;
+    }
+
+    bool ok = false;
+    QPixmap p;
+    QRect geometry;
+
+    if (screenNumber < 0) {
+        ScreenGrabber grabber;
+        p = grabber.grabEntireDesktop(ok);
+        if (ok) {
+            QScreen* selectedScreen = grabber.getSelectedScreen();
+            if (selectedScreen) {
+                geometry = ScreenGrabber().screenGeometry(selectedScreen);
+            } else {
+                ok = false;
+            }
+        }
+    } else if (screenNumber >= qApp->screens().count()) {
+        AbstractLogger() << QObject::tr(
+          "Requested screen exceeds screen count");
+        ok = false;
+    } else {
+        // Specific screen number provided - use grabScreen to bypass selector
+        QScreen* screen = qApp->screens()[screenNumber];
+        p = ScreenGrabber().grabScreen(screen, ok);
+        if (ok) {
+            geometry = ScreenGrabber().screenGeometry(screen);
+        }
+    }
+
+    if (ok) {
+        QRect region = req.initialSelection();
+        if (region.isNull()) {
+            region = geometry;
+        } else {
+            QRect screenGeom = geometry;
+            screenGeom.moveTopLeft({ 0, 0 });
+            region = region.intersected(screenGeom);
+            p = p.copy(region);
+        }
+        if (req.tasks() & CaptureRequest::PIN) {
+            // change geometry for pin task
+            req.addPinTask(region);
+        }
+        exportCapture(p, geometry, req);
+    } else {
+        emit captureFailed();
+    }
+}
+
+void Zshot::full(const CaptureRequest& req)
+{
+    if (!resolveAnyConfigErrors()) {
+        return;
+    }
+
+    bool ok = true;
+    QPixmap p(ScreenGrabber().grabFullDesktop(ok));
+    if (ok) {
+        QRect selection; // `zshot full` does not support region selection
+        exportCapture(p, selection, req);
+    } else {
+        emit captureFailed();
+    }
+}
+
+void Zshot::launcher()
+{
+    if (!resolveAnyConfigErrors()) {
+        return;
+    }
+
+    if (m_launcherWindow == nullptr) {
+        m_launcherWindow = new CaptureLauncher();
+    }
+    m_launcherWindow->show();
+#if defined(Q_OS_MACOS)
+    showDockIcon(m_launcherWindow);
+#endif
+}
+
+void Zshot::config()
+{
+    if (!resolveAnyConfigErrors()) {
+        return;
+    }
+
+    if (m_configWindow == nullptr) {
+        m_configWindow = new ConfigWindow();
+        m_configWindow->show();
+        // Call show() first, otherwise the correct geometry cannot be fetched
+        // for centering the window on the screen
+        QRect position = m_configWindow->frameGeometry();
+        QScreen* currentScreen = QGuiAppCurrentScreen().currentScreen();
+        position.moveCenter(currentScreen->availableGeometry().center());
+        m_configWindow->move(position.topLeft());
+#if defined(Q_OS_MACOS)
+        showDockIcon(m_configWindow);
+#endif
+    }
+}
+
+void Zshot::info()
+{
+    if (m_infoWindow == nullptr) {
+        m_infoWindow = new InfoWindow();
+#if defined(Q_OS_MACOS)
+        showDockIcon(m_infoWindow);
+#endif
+    }
+}
+
+}
+#endif
+
+#if defined(Q_OS_MACOS)
+void Zshot::onWindowVisibilityChanged(QWindow::Visibility newVisibility)
+{
+    auto* qw = qobject_cast<QWindow*>(sender());
+    if (!qw) {
+        return;
+    }
+
+    if (newVisibility == QWindow::Hidden) {
+        qw->setProperty(visibleInDockProperty, false);
+        --m_dockIconVisibleCount;
+        if (m_dockIconVisibleCount == 0) {
+            setActivationPolicyAccessory();
+        }
+    } else {
+        bool windowTrackedInDock = qw->property(visibleInDockProperty).toBool();
+        if (!windowTrackedInDock) {
+            qw->setProperty(visibleInDockProperty, true);
+            ++m_dockIconVisibleCount;
+            setActivationPolicyRegular();
+        }
+    }
+}
+
+void Zshot::showDockIcon(QWidget* w)
+{
+    QWindow* qw = w->windowHandle();
+    if (!qw) {
+        return;
+    }
+
+    connect(qw,
+            &QWindow::visibilityChanged,
+            this,
+            &Zshot::onWindowVisibilityChanged);
+}
+#endif
+
+void Zshot::openSavePath()
+{
+    QString savePath = ConfigHandler().savePath();
+    if (!savePath.isEmpty()) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
+    }
+}
+
+QVersionNumber Zshot::getVersion()
+{
+    return QVersionNumber::fromString(
+      QStringLiteral(APP_VERSION).replace("v", ""));
+}
+
+void Zshot::setOrigin(Origin origin)
+{
+    m_origin = origin;
+}
+
+Zshot::Origin Zshot::origin()
+{
+    return m_origin;
+}
+
+/**
+ * @brief Prompt the user to resolve config errors if necessary.
+ * @return Whether errors were resolved.
+ */
 bool Zshot::resolveAnyConfigErrors()
 {
     bool resolved = true;
@@ -76,12 +358,16 @@ bool Zshot::resolveAnyConfigErrors()
           resolver, &ConfigResolver::rejected, [resolver, &resolved]() {
               resolved = false;
               resolver->deleteLater();
+              if (origin() == CLI) {
+                  exit(1);
+              }
           });
         QObject::connect(
           resolver, &ConfigResolver::accepted, [resolver, &resolved]() {
               resolved = true;
               resolver->close();
               resolver->deleteLater();
+              // Ensure that the dialog is closed before starting capture
               qApp->processEvents();
           });
         resolver->exec();
@@ -97,10 +383,22 @@ void Zshot::requestCapture(const CaptureRequest& request)
     }
 
     switch (request.captureMode()) {
-        case CaptureRequest::GRAPHICAL_MODE:
+        case CaptureRequest::FULLSCREEN_MODE:
+            QTimer::singleShot(request.delay(),
+                               [this, request] { full(request); });
+            break;
+        case CaptureRequest::SCREEN_MODE: {
+            int&& number = request.data().toInt();
+            QTimer::singleShot(request.delay(), [this, request, number]() {
+                screen(request, number);
+            });
+            break;
+        }
+        case CaptureRequest::GRAPHICAL_MODE: {
             QTimer::singleShot(
               request.delay(), this, [this, request]() { gui(request); });
             break;
+        }
         default:
             emit captureFailed();
             break;
@@ -108,12 +406,28 @@ void Zshot::requestCapture(const CaptureRequest& request)
 }
 
 void Zshot::exportCapture(const QPixmap& capture,
-                              const QRect& selection,
+                              QRect& selection,
                               const CaptureRequest& req)
 {
     using CR = CaptureRequest;
-    int tasks = req.tasks();
+    int tasks = req.tasks(), mode = req.captureMode();
     QString path = req.path();
+
+    if (tasks & CR::PRINT_GEOMETRY) {
+        QTextStream(stdout)
+          << selection.width() << "x" << selection.height() << "+"
+          << selection.x() << "+" << selection.y() << "\n";
+    }
+
+    if (tasks & CR::PRINT_RAW) {
+        QByteArray byteArray;
+        QBuffer buffer(&byteArray);
+        capture.save(&buffer, "PNG");
+        if (QFile file; file.open(stdout, QIODevice::WriteOnly)) {
+            file.write(byteArray);
+            file.close();
+        }
+    }
 
     if (tasks & CR::SAVE) {
         if (req.path().isEmpty()) {
@@ -129,7 +443,26 @@ void Zshot::exportCapture(const QPixmap& capture,
 
     if (tasks & CR::PIN) {
         ZshotDaemon::createPin(capture, selection);
+        if (mode == CR::SCREEN_MODE || mode == CR::FULLSCREEN_MODE) {
+            AbstractLogger::info()
+              << QObject::tr("Full screen screenshot pinned to screen");
+        }
     }
 
-    emit captureTaken(capture);
+
+    if (!(tasks & CR::UPLOAD)) {
+        emit captureTaken(capture);
+    }
 }
+
+void Zshot::setExternalWidget(bool b)
+{
+    m_haveExternalWidget = b;
+}
+bool Zshot::haveExternalWidget()
+{
+    return m_haveExternalWidget;
+}
+
+// STATIC ATTRIBUTES
+Zshot::Origin Zshot::m_origin = Zshot::DAEMON;

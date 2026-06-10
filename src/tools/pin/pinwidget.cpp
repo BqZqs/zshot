@@ -7,7 +7,6 @@
 #include "utils/globalvalues.h"
 #include "utils/screenshotsaver.h"
 
-#include <QAction>
 #include <QGraphicsDropShadowEffect>
 #include <QGraphicsOpacityEffect>
 #include <QLabel>

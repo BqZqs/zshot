@@ -164,7 +164,6 @@ private:
 
 class ExistingDir : public ValueHandler
 {
-public:
     bool check(const QVariant& val) override;
     QVariant fallback() override;
     QString expected() override;
@@ -172,7 +171,6 @@ public:
 
 class FilenamePattern : public ValueHandler
 {
-public:
     bool check(const QVariant&) override;
     QVariant fallback() override;
     QVariant process(const QVariant&) override;
@@ -210,7 +208,6 @@ private:
 
 class SaveFileExtension : public ValueHandler
 {
-public:
     bool check(const QVariant& val) override;
     QVariant process(const QVariant& val) override;
     QString expected() override;

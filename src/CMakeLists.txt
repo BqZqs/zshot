@@ -27,15 +27,9 @@ add_executable(zshot
     ${CMAKE_SOURCE_DIR}/data/zshot.rc
 )
 
-set_target_properties(zshot PROPERTIES
-    WIN32_EXECUTABLE TRUE
-)
+set_target_properties(zshot PROPERTIES WIN32_EXECUTABLE TRUE)
 
-# Suppress warnings from generated moc/ui files
-target_include_directories(zshot PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-)
+target_include_directories(zshot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_definitions(zshot PRIVATE
     APP_VERSION="${PROJECT_VERSION}"
@@ -55,8 +49,4 @@ target_link_libraries(zshot PRIVATE
     Qt6::Network
 )
 
-# Install executable to root of package
-install(TARGETS zshot
-    RUNTIME DESTINATION .
-    BUNDLE DESTINATION .
-)
+install(TARGETS zshot RUNTIME DESTINATION . BUNDLE DESTINATION .)

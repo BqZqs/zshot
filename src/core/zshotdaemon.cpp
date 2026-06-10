@@ -6,7 +6,6 @@
 #include "utils/globalvalues.h"
 #include "utils/screenshotsaver.h"
 #include "widgets/capture/capturewidget.h"
-#include "widgets/trayicon.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -301,7 +300,7 @@ void ZshotDaemon::attachPin(const QPixmap& pixmap, QRect geometry)
 {
     auto* pinWidget = new PinWidget(pixmap, geometry);
     m_widgets.append(pinWidget);
-    connect(pinWidget, &QObject::destroyed, this, [=]() {
+    connect(pinWidget, &QObject::destroyed, this, [=, this]() {
         m_widgets.removeOne(pinWidget);
         quitIfIdle();
     });

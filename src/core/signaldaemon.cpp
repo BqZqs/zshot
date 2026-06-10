@@ -22,12 +22,12 @@ SignalDaemon::SignalDaemon(QObject* parent)
         qFatal("Couldn't create TERM socketpair");
     snInt = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
     connect(
-      snInt, &QSocketNotifier::activated, this, &SignalDaemon::handleSigInt);
+      snInt, SIGNAL(activated(QSocketDescriptor)), this, SLOT(handleSigInt()));
     snTerm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
     connect(snTerm,
-            &QSocketNotifier::activated,
+            SIGNAL(activated(QSocketDescriptor)),
             this,
-            &SignalDaemon::handleSigTerm);
+            SLOT(handleSigTerm()));
 }
 
 void SignalDaemon::intSignalHandler(int)

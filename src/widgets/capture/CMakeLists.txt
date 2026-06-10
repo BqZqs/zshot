@@ -1,5 +1,5 @@
-# Capture widget module sources
-set(CAPTURE_SOURCES
+# widgets/capture module sources
+set(WIDGETS/CAPTURE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/buttonhandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/buttonhandler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/capturebutton.cpp
@@ -25,4 +25,4 @@ set(CAPTURE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/selectionwidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/selectionwidget.h
 )
-set(CAPTURE_SOURCES ${CAPTURE_SOURCES} PARENT_SCOPE)
+set(WIDGETS/CAPTURE_SOURCES ${WIDGETS/CAPTURE_SOURCES} PARENT_SCOPE)

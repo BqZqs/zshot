@@ -1,4 +1,4 @@
-# Tools module sources — includes all tool subdirectories
+# tools module sources
 set(TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/abstractactiontool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/abstractactiontool.h
@@ -9,14 +9,16 @@ set(TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.h
     ${CMAKE_CURRENT_SOURCE_DIR}/capturetool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.h
     ${CMAKE_CURRENT_SOURCE_DIR}/accept/accepttool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/accept/accepttool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/circle/circletool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/circle/circletool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/exit/exittool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/exit/exittool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/marker/markertool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/marker/markertool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/move/movetool.cpp
@@ -31,6 +33,12 @@ set(TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/pixelate/pixelatetool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rectangle/rectangletool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rectangle/rectangletool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/redo/redotool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/redo/redotool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/save/savetool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/save/savetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/selection/selectiontool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/selection/selectiontool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sizedecrease/sizedecreasetool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sizedecrease/sizedecreasetool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sizeincrease/sizeincreasetool.cpp

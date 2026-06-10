@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 
 #include "capturebutton.h"
+#include "utils/colorutils.h"
 #include "utils/globalvalues.h"
 
 #include <QGraphicsDropShadowEffect>
@@ -46,28 +47,27 @@ QString CaptureButton::globalStyleSheet()
 
 QString CaptureButton::styleSheet() const
 {
-    // Pixel-style pink theme: flat colors, square corners, monospace
-    QString baseSheet =
-      "CaptureButton {"
-      "  border: 2px solid #FF69B4;"
-      "  padding: 3px 8px;"
-      "  background-color: #FFB6C1;"
-      "  color: #4A0030;"
-      "  font-family: monospace;"
-      "  border-radius: 0px;"
-      "}"
-      "CaptureButton:hover {"
-      "  background-color: #FF91A4;"
-      "}"
-      "CaptureButton:pressed {"
-      "  background-color: #FF69B4;"
-      "  color: #FFFFFF;"
-      "}"
-      "CaptureToolButton {"
-      "  border-radius: 0px;"
-      "  padding: 0;"
-      "}";
-    return baseSheet;
+    // Pixel-style pink theme
+    return QStringLiteral(
+        "CaptureButton {"
+        "  border: 2px solid #FF69B4;"
+        "  padding: 3px 8px;"
+        "  background-color: #FFB6C1;"
+        "  color: #4A0030;"
+        "  font-family: monospace;"
+        "  border-radius: 0px;"
+        "}"
+        "CaptureButton:hover {"
+        "  background-color: #FF91A4;"
+        "}"
+        "CaptureButton:pressed {"
+        "  background-color: #FF69B4;"
+        "  color: #FFFFFF;"
+        "}"
+        "CaptureToolButton {"
+        "  border-radius: 0px;"
+        "  padding: 0;"
+        "}");
 }
 
 void CaptureButton::setColor(const QColor& c)
