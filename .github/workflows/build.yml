@@ -23,11 +23,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        qt_ver: [6.5.3]
-        qt_target: [desktop]
-        qt_arch: win64_msvc2022_64
-        qt_arch_install: msvc2022_64
-        pak_arch: win64
+        qt_ver: ["6.5.3"]
+        qt_arch: ["win64_msvc2019_64"]
+        qt_arch_install: ["msvc2019_64"]
+        pak_arch: ["win64"]
 
     steps:
       - name: Checkout Source
@@ -40,8 +39,6 @@ jobs:
         run: |
           VERSION=$(grep 'set.*ZSHOT_VERSION' CMakeLists.txt | sed 's/[^0-9.]*//' | sed 's/)//g')
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          git_hash=$(git rev-parse --short HEAD)
-          echo "GIT_HASH=${git_hash}" >> $GITHUB_ENV
           echo "======= ZSHOT VERSION ========"
           echo "${VERSION}"
           echo "================================"
@@ -51,15 +48,15 @@ jobs:
         with:
           version: ${{ matrix.qt_ver }}
           cache: 'true'
-          cache-key-prefix: install-qt-action-${{ matrix.qt_ver }}
-          target: ${{ matrix.qt_target }}
+          cache-key-prefix: 'install-qt-action-${{ matrix.qt_ver }}'
+          target: 'desktop'
           arch: ${{ matrix.qt_arch }}
           modules: 'qtimageformats'
           dir: '${{ github.workspace }}/Qt/'
 
       - name: Create Build Dir
         shell: pwsh
-        run: New-Item -Path $env:GITHUB_WORKSPACE\build -ItemType Directory -Force
+        run: New-Item -Path "$env:GITHUB_WORKSPACE\build" -ItemType Directory -Force
 
       - name: Configure CMake
         working-directory: build
@@ -78,8 +75,7 @@ jobs:
       - name: Package (ZIP)
         working-directory: build
         shell: pwsh
-        run: |
-          cpack -G ZIP -B "$env:GITHUB_WORKSPACE\build\Package"
+        run: cpack -G ZIP -B "$env:GITHUB_WORKSPACE\build\Package"
 
       - name: Prepare Artifact
         shell: pwsh
@@ -88,19 +84,12 @@ jobs:
           Move-Item -Path "$env:GITHUB_WORKSPACE\build\Package\zshot-*-${{ matrix.pak_arch }}.zip" `
             -Destination "$env:GITHUB_WORKSPACE\build\Package\portable\zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip"
 
-      - name: SHA256 Checksum
-        shell: bash
-        run: |
-          sha256sum "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip" || true
-          sha256sum "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip" > "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum" || true
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: zshot-${{ env.VERSION }}-win-${{ matrix.pak_arch }}-portable
           path: |
             ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
-            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
           overwrite: true
 
       - name: Create Release
@@ -123,6 +112,5 @@ jobs:
             解压后运行 `zshot.exe`
           files: |
             ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
-            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
           draft: false
           prerelease: false
