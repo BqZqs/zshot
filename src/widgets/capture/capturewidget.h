@@ -39,7 +39,6 @@ class HoverEventFilter;
 #if !defined(DISABLE_UPDATE_CHECKER)
 class UpdateNotificationWidget;
 #endif
-#endif
 class UtilityPanel;
 class SidePanelWidget;
 
@@ -58,7 +57,6 @@ public:
 #if !defined(DISABLE_UPDATE_CHECKER)
     void showAppUpdateNotification(const QString& appLatestVersion,
                                    const QString& appLatestUrl);
-#endif
 #endif
 
 public slots:
@@ -187,7 +185,6 @@ private:
 
 #if !defined(DISABLE_UPDATE_CHECKER)
     UpdateNotificationWidget* m_updateNotificationWidget;
-#endif
 #endif
     quint64 m_lastMouseWheel;
     QPointer<CaptureToolButton> m_sizeIndButton;
