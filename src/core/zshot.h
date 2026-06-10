@@ -13,7 +13,6 @@
 class CaptureWidget;
 class QWidget;
 #ifdef ENABLE_IMGUR
-class UploadHistory;
 #endif
 #if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
 #endif

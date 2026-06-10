@@ -1,150 +1,76 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
-
 #include "sidepanelwidget.h"
-#include "utils/colorutils.h"
-#include "utils/pathinfo.h"
-#include "widgets/panel/colorgrabwidget.h"
-#include "widgets/panel/utilitypanel.h"
 
-#include <QApplication>
-#include <QCheckBox>
-#include <QKeyEvent>
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
-#include <QShortcut>
 #include <QSlider>
 #include <QVBoxLayout>
-#if defined(Q_OS_MACOS)
-#include <QScreen>
-#endif
 
-SidePanelWidget::SidePanelWidget(QPixmap* p, QWidget* parent)
+SidePanelWidget::SidePanelWidget(QWidget* parent)
   : QWidget(parent)
   , m_layout(new QVBoxLayout(this))
-  , m_pixmap(p)
+  , m_toolSizeSpin(new QSpinBox(this))
+  , m_toolSizeSlider(new QSlider(Qt::Horizontal, this))
 {
+    const QStringList presetColors = {
+        "#FFFFFF", "#C0C0C0", "#808080", "#000000",
+        "#FF0000", "#FF4500", "#FFA500", "#FFFF00",
+        "#00FF00", "#00CED1", "#0000FF", "#8A2BE2",
+        "#FF69B4", "#FFB6C1", "#8B4513", "#F5F5DC"
+    };
 
-    if (parent != nullptr) {
-        parent->installEventFilter(this);
+    auto* colorGrid = new QGridLayout();
+    colorGrid->setSpacing(2);
+
+    for (int i = 0; i < presetColors.size(); ++i) {
+        const QColor color(presetColors[i]);
+        auto* btn = new QPushButton(this);
+        btn->setFixedSize(20, 20);
+        btn->setCursor(Qt::PointingHandCursor);
+        btn->setProperty("btnColor", color);
+
+        connect(btn, &QPushButton::clicked, this, [this, color]() {
+            m_color = color;
+            updateColorButtonStyles();
+            emit colorChanged(color);
+        });
+
+        colorGrid->addWidget(btn, i / 4, i % 4);
+        m_colorButtons.append(btn);
     }
 
-    auto* colorLayout = new QGridLayout();
+    m_layout->addLayout(colorGrid);
 
-    // Create Active Tool Size
-    auto* toolSizeHBox = new QHBoxLayout();
-    auto* activeToolSizeText = new QLabel(tr("Active tool size: "));
-
-    m_toolSizeSpin = new QSpinBox(this);
+    auto* sizeRow = new QHBoxLayout();
+    auto* sizeLabel = new QLabel(tr("Tool size:"), this);
     m_toolSizeSpin->setRange(1, maxToolSize);
     m_toolSizeSpin->setSingleStep(1);
-    m_toolSizeSpin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    toolSizeHBox->addWidget(activeToolSizeText);
-    toolSizeHBox->addWidget(m_toolSizeSpin);
-
-    m_toolSizeSlider = new QSlider(Qt::Horizontal);
     m_toolSizeSlider->setRange(1, maxToolSize);
-    m_toolSizeSlider->setValue(m_toolSize);
     m_toolSizeSlider->setMinimumWidth(minSliderWidth);
 
-    colorLayout->addLayout(toolSizeHBox, 0, 0);
-    colorLayout->addWidget(m_toolSizeSlider, 1, 0);
+    sizeRow->addWidget(sizeLabel);
+    sizeRow->addWidget(m_toolSizeSpin);
+    m_layout->addLayout(sizeRow);
+    m_layout->addWidget(m_toolSizeSlider);
 
-    // Create Active Color
-    auto* colorHBox = new QHBoxLayout();
-    auto* colorText = new QLabel(tr("Active Color: "));
-
-    m_colorLabel = new QLabel();
-    m_colorLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    colorHBox->addWidget(colorText);
-    colorHBox->addWidget(m_colorLabel);
-    colorLayout->addLayout(colorHBox, 2, 0);
-
-    m_layout->addLayout(colorLayout);
-
-    m_colorWheel = new color_widgets::ColorWheel(this);
-    m_colorWheel->setColor(m_color);
-    m_colorHex = new QLineEdit(this);
-    m_colorHex->setAlignment(Qt::AlignCenter);
-
-    QColor background = this->palette().window().color();
-    bool isDark = ColorUtils::colorIsDark(background);
-    QString modifier =
-      isDark ? PathInfo::whiteIconPath() : PathInfo::blackIconPath();
-    QIcon grabIcon(modifier + "colorize.svg");
-    m_colorGrabButton = new QPushButton(grabIcon, tr("Grab Color"));
-
-    m_layout->addWidget(m_colorGrabButton);
-    m_layout->addWidget(m_colorWheel);
-    m_layout->addWidget(m_colorHex);
-
-    QHBoxLayout* gridHBoxLayout = new QHBoxLayout();
-    m_gridCheck = new QCheckBox(tr("Display grid"), this);
-    m_gridSizeSpin = new QSpinBox(this);
-    m_gridSizeSpin->setRange(5, 50);
-    m_gridSizeSpin->setSingleStep(5);
-    m_gridSizeSpin->setValue(10);
-    m_gridSizeSpin->setDisabled(true);
-    m_gridSizeSpin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    gridHBoxLayout->addWidget(m_gridCheck);
-    gridHBoxLayout->addWidget(m_gridSizeSpin);
-    m_layout->addLayout(gridHBoxLayout);
-
-    // tool size sigslots
     connect(m_toolSizeSpin,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this,
-            &SidePanelWidget::toolSizeChanged);
-    connect(m_toolSizeSlider,
-            &QSlider::valueChanged,
-            this,
-            &SidePanelWidget::toolSizeChanged);
-    connect(this,
-            &SidePanelWidget::toolSizeChanged,
-            this,
-            &SidePanelWidget::onToolSizeChanged);
-    // color hex editor sigslots
-    connect(m_colorHex, &QLineEdit::editingFinished, this, [=, this]() {
-#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
-        if (!QColor::isValidColor(m_colorHex->text())) {
-#else
-        if (!QColor::isValidColorName(m_colorHex->text())) {
-#endif
-            m_colorHex->setText(m_color.name(QColor::HexRgb));
-        } else {
-            emit colorChanged(m_colorHex->text());
-        }
-    });
-    // color grab button sigslots
-    connect(m_colorGrabButton,
-            &QPushButton::pressed,
-            this,
-            &SidePanelWidget::startColorGrab);
-    // color wheel sigslots
-    //   re-emit ColorWheel::colorSelected as SidePanelWidget::colorChanged
-    connect(m_colorWheel,
-            &color_widgets::ColorWheel::colorSelected,
-            this,
-            &SidePanelWidget::colorChanged);
-    // Grid feature
-    connect(m_gridCheck, &QCheckBox::clicked, this, [=, this](bool b) {
-        this->m_gridSizeSpin->setEnabled(b);
-        emit this->displayGridChanged(b);
-    });
-    connect(m_gridSizeSpin,
-            qOverload<int>(&QSpinBox::valueChanged),
-            this,
-            &SidePanelWidget::gridSizeChanged);
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            this, &SidePanelWidget::toolSizeChanged);
+    connect(m_toolSizeSlider, &QSlider::valueChanged,
+            this, &SidePanelWidget::toolSizeChanged);
+    connect(this, &SidePanelWidget::toolSizeChanged,
+            this, &SidePanelWidget::onToolSizeChanged);
+
+    m_color = QColor("#FF0000");
+    updateColorButtonStyles();
 }
 
 void SidePanelWidget::onColorChanged(const QColor& color)
 {
     m_color = color;
-    updateColorNoWheel(color);
-    m_colorWheel->setColor(color);
+    updateColorButtonStyles();
 }
 
 void SidePanelWidget::onToolSizeChanged(int t)
@@ -154,77 +80,15 @@ void SidePanelWidget::onToolSizeChanged(int t)
     m_toolSizeSpin->setValue(m_toolSize);
 }
 
-void SidePanelWidget::startColorGrab()
+void SidePanelWidget::updateColorButtonStyles()
 {
-    m_revertColor = m_color;
-    m_colorGrabber = new ColorGrabWidget(m_pixmap);
-    connect(m_colorGrabber,
-            &ColorGrabWidget::colorUpdated,
-            this,
-            &SidePanelWidget::onTemporaryColorUpdated);
-    connect(m_colorGrabber,
-            &ColorGrabWidget::colorGrabbed,
-            this,
-            &SidePanelWidget::onColorGrabFinished);
-    connect(m_colorGrabber,
-            &ColorGrabWidget::grabAborted,
-            this,
-            &SidePanelWidget::onColorGrabAborted);
-
-    emit hidePanel();
-    m_colorGrabber->startGrabbing();
-}
-
-void SidePanelWidget::onColorGrabFinished()
-{
-    finalizeGrab();
-    m_color = m_colorGrabber->color();
-    emit colorChanged(m_color);
-}
-
-void SidePanelWidget::onColorGrabAborted()
-{
-    finalizeGrab();
-    // Restore color that was selected before we started grabbing
-    onColorChanged(m_revertColor);
-}
-
-void SidePanelWidget::onTemporaryColorUpdated(const QColor& color)
-{
-    updateColorNoWheel(color);
-}
-
-void SidePanelWidget::finalizeGrab()
-{
-    emit showPanel();
-}
-
-void SidePanelWidget::updateColorNoWheel(const QColor& c)
-{
-    m_colorLabel->setStyleSheet(
-      QStringLiteral("QLabel { background-color : %1; }").arg(c.name()));
-    m_colorHex->setText(c.name(QColor::HexRgb));
-}
-
-bool SidePanelWidget::eventFilter(QObject* obj, QEvent* event)
-{
-    if (event->type() == QEvent::ShortcutOverride) {
-        // Override Escape shortcut from CaptureWidget
-        auto* e = static_cast<QKeyEvent*>(event);
-        if (e->key() == Qt::Key_Escape && m_colorHex->hasFocus()) {
-            m_colorHex->clearFocus();
-            e->accept();
-            return true;
-        }
-    } else if (event->type() == QEvent::MouseButtonPress) {
-        // Clicks outside of the Color Hex editor
-        m_colorHex->clearFocus();
+    for (auto* btn : m_colorButtons) {
+        QColor btnColor = btn->property("btnColor").value<QColor>();
+        QString border = (btnColor == m_color)
+            ? QStringLiteral("2px solid #FFFFFF")
+            : QStringLiteral("1px solid #333333");
+        btn->setStyleSheet(QStringLiteral(
+            "QPushButton { background-color: %1; border: %2; border-radius: 0px; padding: 0px; }"
+        ).arg(btnColor.name(), border));
     }
-    return QWidget::eventFilter(obj, event);
-}
-
-void SidePanelWidget::hideEvent(QHideEvent* event)
-{
-    QWidget::hideEvent(event);
-    m_colorHex->clearFocus();
 }

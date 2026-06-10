@@ -1,7 +1,5 @@
 # widgets/panel module sources
 set(PANEL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/colorgrabwidget.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/colorgrabwidget.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sidepanelwidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sidepanelwidget.h
     ${CMAKE_CURRENT_SOURCE_DIR}/utilitypanel.cpp

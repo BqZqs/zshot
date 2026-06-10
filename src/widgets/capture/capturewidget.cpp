@@ -11,6 +11,7 @@
 
 #include "capturewidget.h"
 #include "config/cacheutils.h"
+#include "config/generalconf.h"
 #include "core/zshot.h"
 #include "core/qguiappcurrentscreen.h"
 #include "tools/copy/copytool.h"
@@ -448,12 +449,6 @@ void CaptureWidget::onGridSizeChanged(int size)
     repaint();
 }
 
-void CaptureWidget::startColorGrab()
-{
-    if (m_sidePanel) {
-        m_sidePanel->startColorGrab();
-    }
-}
 
 void CaptureWidget::showxywh()
 {
@@ -1264,7 +1259,7 @@ void CaptureWidget::initPanel()
             this,
             &CaptureWidget::onMoveCaptureToolDown);
 
-    m_sidePanel = new SidePanelWidget(&m_context.screenshot, this);
+    m_sidePanel = new SidePanelWidget(this);
     connect(m_sidePanel,
             &SidePanelWidget::colorChanged,
             this,
@@ -1286,9 +1281,6 @@ void CaptureWidget::initPanel()
             m_panel,
             &UtilityPanel::toggle);
     connect(
-      m_sidePanel, &SidePanelWidget::showPanel, m_panel, &UtilityPanel::show);
-    connect(
-      m_sidePanel, &SidePanelWidget::hidePanel, m_panel, &UtilityPanel::hide);
     connect(m_sidePanel,
             &SidePanelWidget::displayGridChanged,
             this,
@@ -1307,7 +1299,6 @@ void CaptureWidget::initPanel()
 }
 
 #if !defined(DISABLE_UPDATE_CHECKER)
-#if !defined(DISABLE_UPDATE_CHECKER)
 void CaptureWidget::showAppUpdateNotification(const QString& appLatestVersion,
                                               const QString& appLatestUrl)
 {
@@ -1315,7 +1306,6 @@ void CaptureWidget::showAppUpdateNotification(const QString& appLatestVersion,
         // option check for updates disabled
         return;
     }
-    if (nullptr == m_updateNotificationWidget) {
         m_updateNotificationWidget =
           new UpdateNotificationWidget(this, appLatestVersion, appLatestUrl);
     }
@@ -1657,7 +1647,6 @@ void CaptureWidget::initShortcuts()
                 SLOT(togglePanel()));
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_GRAB_COLOR")),
                 this,
-                SLOT(startColorGrab()));
 
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_RESIZE_LEFT")),
                 m_selection,
