@@ -37,7 +37,9 @@ class ColorPicker;
 class NotifierBox;
 class HoverEventFilter;
 #if !defined(DISABLE_UPDATE_CHECKER)
+#if !defined(DISABLE_UPDATE_CHECKER)
 class UpdateNotificationWidget;
+#endif
 #endif
 class UtilityPanel;
 class SidePanelWidget;
@@ -55,8 +57,10 @@ public:
     QPixmap pixmap();
     void setCaptureToolObjects(const CaptureToolObjects& captureToolObjects);
 #if !defined(DISABLE_UPDATE_CHECKER)
+#if !defined(DISABLE_UPDATE_CHECKER)
     void showAppUpdateNotification(const QString& appLatestVersion,
                                    const QString& appLatestUrl);
+#endif
 #endif
 
 public slots:
@@ -184,7 +188,9 @@ private:
     bool m_configErrorResolved;
 
 #if !defined(DISABLE_UPDATE_CHECKER)
+#if !defined(DISABLE_UPDATE_CHECKER)
     UpdateNotificationWidget* m_updateNotificationWidget;
+#endif
 #endif
     quint64 m_lastMouseWheel;
     QPointer<CaptureToolButton> m_sizeIndButton;

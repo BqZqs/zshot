@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+
+# Tell resource compiler where to find icon files
+set_source_files_properties(${CMAKE_SOURCE_DIR}/data/zshot.rc
+    PROPERTIES COMPILE_FLAGS "/i \"${CMAKE_SOURCE_DIR}/data\""
+)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)

@@ -11,9 +11,6 @@
 #include <QWindow>
 
 class CaptureWidget;
-class ConfigWindow;
-class InfoWindow;
-class CaptureLauncher;
 class QWidget;
 #ifdef ENABLE_IMGUR
 class UploadHistory;
@@ -50,13 +47,9 @@ public slots:
       const CaptureRequest& req = CaptureRequest::GRAPHICAL_MODE);
     void screen(CaptureRequest req, int const screenNumber = -1);
     void full(const CaptureRequest& req);
-    void launcher();
-    void config();
 
-    void info();
 
 #ifdef ENABLE_IMGUR
-    void history();
 #endif
 
     void openSavePath();
@@ -88,9 +81,6 @@ private:
     bool m_haveExternalWidget;
 
     QPointer<CaptureWidget> m_captureWindow;
-    QPointer<InfoWindow> m_infoWindow;
-    QPointer<CaptureLauncher> m_launcherWindow;
-    QPointer<ConfigWindow> m_configWindow;
 
 #if defined(Q_OS_MACOS)
 public:

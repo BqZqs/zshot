@@ -20,8 +20,6 @@ set(UTILS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/monitorpreview.h
     ${CMAKE_CURRENT_SOURCE_DIR}/pathinfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pathinfo.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/request.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/request.h
     ${CMAKE_CURRENT_SOURCE_DIR}/screengrabber.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/screengrabber.h
     ${CMAKE_CURRENT_SOURCE_DIR}/screenshotsaver.cpp

@@ -102,7 +102,7 @@ bool PinWidget::scrollEvent(QWheelEvent* event)
 {
     const auto phase = event->phase();
     if (phase == Qt::ScrollPhase::ScrollUpdate
-#if defined(Q_OS_UNIX) || defined(Q_OS_WINDOWS)
+#if defined(Q_OS_UNIX) || defined(Q_OS_WIN)
         || phase == Qt::ScrollPhase::NoScrollPhase
 #endif
     ) {

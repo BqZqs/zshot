@@ -8,3 +8,5 @@ set(CONFIG_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/configresolver.h
 )
 set(CONFIG_SOURCES ${CONFIG_SOURCES} PARENT_SCOPE)
+    ${CMAKE_CURRENT_SOURCE_DIR}/generalconf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/generalconf.h

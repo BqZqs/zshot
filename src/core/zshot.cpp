@@ -82,17 +82,7 @@ Zshot::Zshot()
         CGRequestScreenCaptureAccess();
     }
 #endif
-#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
-    // Set global shortcuts for MacOS or Windows
-      QKeySequence(ConfigHandler().shortcut("TAKE_SCREENSHOT")), true, this);
-                     qApp,
-                     [this]() { gui(); });
-#endif
-#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
-      QKeySequence(ConfigHandler().shortcut("SCREENSHOT_HISTORY")), true, this);
-                     qApp,
-                     [this]() { history(); });
-#endif
+
 }
 
 Zshot* Zshot::instance()
@@ -231,55 +221,6 @@ void Zshot::full(const CaptureRequest& req)
         emit captureFailed();
     }
 }
-
-void Zshot::launcher()
-{
-    if (!resolveAnyConfigErrors()) {
-        return;
-    }
-
-    if (m_launcherWindow == nullptr) {
-        m_launcherWindow = new CaptureLauncher();
-    }
-    m_launcherWindow->show();
-#if defined(Q_OS_MACOS)
-    showDockIcon(m_launcherWindow);
-#endif
-}
-
-void Zshot::config()
-{
-    if (!resolveAnyConfigErrors()) {
-        return;
-    }
-
-    if (m_configWindow == nullptr) {
-        m_configWindow = new ConfigWindow();
-        m_configWindow->show();
-        // Call show() first, otherwise the correct geometry cannot be fetched
-        // for centering the window on the screen
-        QRect position = m_configWindow->frameGeometry();
-        QScreen* currentScreen = QGuiAppCurrentScreen().currentScreen();
-        position.moveCenter(currentScreen->availableGeometry().center());
-        m_configWindow->move(position.topLeft());
-#if defined(Q_OS_MACOS)
-        showDockIcon(m_configWindow);
-#endif
-    }
-}
-
-void Zshot::info()
-{
-    if (m_infoWindow == nullptr) {
-        m_infoWindow = new InfoWindow();
-#if defined(Q_OS_MACOS)
-        showDockIcon(m_infoWindow);
-#endif
-    }
-}
-
-}
-#endif
 
 #if defined(Q_OS_MACOS)
 void Zshot::onWindowVisibilityChanged(QWindow::Visibility newVisibility)

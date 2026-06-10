@@ -39,9 +39,7 @@
 #include <QWindow>
 
 #if !defined(DISABLE_UPDATE_CHECKER)
-#if !defined(DISABLE_UPDATE_CHECKER)
 #include "widgets/updatenotificationwidget.h"
-#endif
 #endif
 
 #define MOUSE_DISTANCE_TO_START_MOVING 3
@@ -1308,6 +1306,7 @@ void CaptureWidget::initPanel()
     m_panel->fillCaptureTools(m_captureToolObjects.captureToolObjects());
 }
 
+#if !defined(DISABLE_UPDATE_CHECKER)
 #if !defined(DISABLE_UPDATE_CHECKER)
 void CaptureWidget::showAppUpdateNotification(const QString& appLatestVersion,
                                               const QString& appLatestUrl)

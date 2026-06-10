@@ -4,8 +4,6 @@
 #include "toolfactory.h"
 #include "tools/accept/accepttool.h"
 #include "tools/circle/circletool.h"
-#ifdef ENABLE_IMGUR
-#endif
 #include "tools/marker/markertool.h"
 #include "tools/move/movetool.h"
 #include "tools/pencil/penciltool.h"
@@ -22,38 +20,29 @@ ToolFactory::ToolFactory(QObject* parent)
 
 CaptureTool* ToolFactory::CreateTool(CaptureTool::Type t, QObject* parent)
 {
-#define if_TYPE_return_TOOL(TYPE, TOOL)                                        \
-    case CaptureTool::TYPE:                                                    \
-        return new TOOL(parent)
-
     switch (t) {
-        if_TYPE_return_TOOL(TYPE_PENCIL, PencilTool);
-        if_TYPE_return_TOOL(TYPE_DRAWER, LineTool);
-        if_TYPE_return_TOOL(TYPE_ARROW, ArrowTool);
-        if_TYPE_return_TOOL(TYPE_SELECTION, SelectionTool);
-        if_TYPE_return_TOOL(TYPE_RECTANGLE, RectangleTool);
-        if_TYPE_return_TOOL(TYPE_CIRCLE, CircleTool);
-        if_TYPE_return_TOOL(TYPE_MARKER, MarkerTool);
-        if_TYPE_return_TOOL(TYPE_MOVESELECTION, MoveTool);
-        if_TYPE_return_TOOL(TYPE_UNDO, UndoTool);
-        if_TYPE_return_TOOL(TYPE_COPY, CopyTool);
-        if_TYPE_return_TOOL(TYPE_SAVE, SaveTool);
-        if_TYPE_return_TOOL(TYPE_EXIT, ExitTool);
-#ifdef ENABLE_IMGUR
-        if_TYPE_return_TOOL(TYPE_IMAGEUPLOADER, ImgUploaderTool);
-#endif
-#if !defined(Q_OS_MACOS)
-        if_TYPE_return_TOOL(TYPE_OPEN_APP, AppLauncher);
-#endif
-        if_TYPE_return_TOOL(TYPE_PIXELATE, PixelateTool);
-        if_TYPE_return_TOOL(TYPE_REDO, RedoTool);
-        if_TYPE_return_TOOL(TYPE_PIN, PinTool);
-        if_TYPE_return_TOOL(TYPE_TEXT, TextTool);
-        if_TYPE_return_TOOL(TYPE_CIRCLECOUNT, CircleCountTool);
-        if_TYPE_return_TOOL(TYPE_SIZEINCREASE, SizeIncreaseTool);
-        if_TYPE_return_TOOL(TYPE_SIZEDECREASE, SizeDecreaseTool);
-        if_TYPE_return_TOOL(TYPE_INVERT, InvertTool);
-        if_TYPE_return_TOOL(TYPE_ACCEPT, AcceptTool);
+        case CaptureTool::TYPE_PENCIL:
+            return new PencilTool(parent);
+        case CaptureTool::TYPE_RECTANGLE:
+            return new RectangleTool(parent);
+        case CaptureTool::TYPE_CIRCLE:
+            return new CircleTool(parent);
+        case CaptureTool::TYPE_MARKER:
+            return new MarkerTool(parent);
+        case CaptureTool::TYPE_PIXELATE:
+            return new PixelateTool(parent);
+        case CaptureTool::TYPE_MOVESELECTION:
+            return new MoveTool(parent);
+        case CaptureTool::TYPE_UNDO:
+            return new UndoTool(parent);
+        case CaptureTool::TYPE_PIN:
+            return new PinTool(parent);
+        case CaptureTool::TYPE_SIZEINCREASE:
+            return new SizeIncreaseTool(parent);
+        case CaptureTool::TYPE_SIZEDECREASE:
+            return new SizeDecreaseTool(parent);
+        case CaptureTool::TYPE_ACCEPT:
+            return new AcceptTool(parent);
         default:
             return nullptr;
     }
