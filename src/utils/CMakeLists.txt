@@ -12,12 +12,18 @@ set(UTILS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/filenamehandler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/globalvalues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/globalvalues.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/monitorpreview.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/monitorpreview.h
     ${CMAKE_CURRENT_SOURCE_DIR}/pathinfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pathinfo.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/request.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/request.h
     ${CMAKE_CURRENT_SOURCE_DIR}/screengrabber.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/screengrabber.h
     ${CMAKE_CURRENT_SOURCE_DIR}/screenshotsaver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/screenshotsaver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/strfparse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/strfparse.h
     ${CMAKE_CURRENT_SOURCE_DIR}/systemnotification.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/systemnotification.h
     ${CMAKE_CURRENT_SOURCE_DIR}/valuehandler.cpp

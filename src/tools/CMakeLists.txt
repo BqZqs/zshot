@@ -9,6 +9,8 @@ set(TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.h
     ${CMAKE_CURRENT_SOURCE_DIR}/capturetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/copy/copytool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.h
     ${CMAKE_CURRENT_SOURCE_DIR}/accept/accepttool.cpp

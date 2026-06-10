@@ -2,6 +2,8 @@
 set(CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/capturerequest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/capturerequest.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/globalshortcutfilter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/globalshortcutfilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/qguiappcurrentscreen.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/qguiappcurrentscreen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/signaldaemon.cpp
