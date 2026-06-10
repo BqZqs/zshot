@@ -301,7 +301,7 @@ void ZshotDaemon::attachPin(const QPixmap& pixmap, QRect geometry)
 {
     auto* pinWidget = new PinWidget(pixmap, geometry);
     m_widgets.append(pinWidget);
-    connect(pinWidget, &QObject::destroyed, this, [=, this]() {
+    connect(pinWidget, &QObject::destroyed, this, [=]() {
         m_widgets.removeOne(pinWidget);
         quitIfIdle();
     });

@@ -70,7 +70,7 @@ void CaptureRequest::addTask(CaptureRequest::ExportTask task)
 
 void CaptureRequest::removeTask(ExportTask task)
 {
-    ((int&)m_tasks) &= ~task;
+    m_tasks = static_cast<ExportTask>(static_cast<int>(m_tasks) & ~task);
 }
 
 void CaptureRequest::addSaveTask(const QString& path)

@@ -269,7 +269,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
         m_configError = true;
     }
     connect(
-      ConfigHandler::getInstance(), &ConfigHandler::error, this, [=, this]() {
+      ConfigHandler::getInstance(), &ConfigHandler::error, this, [=]() {
           m_configError = true;
           m_configErrorResolved = false;
           OverlayMessage::instance()->update();
@@ -277,7 +277,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
     connect(ConfigHandler::getInstance(),
             &ConfigHandler::errorResolved,
             this,
-            [=, this]() {
+            [=]() {
                 m_configError = false;
                 m_configErrorResolved = true;
                 OverlayMessage::instance()->update();
@@ -374,7 +374,7 @@ void CaptureWidget::initButtons()
                 if (!shortcut.isNull()) {
                     auto shortcuts = newShortcut(shortcut, this, nullptr);
                     for (auto* sc : shortcuts) {
-                        connect(sc, &QShortcut::activated, this, [=, this]() {
+                        connect(sc, &QShortcut::activated, this, [=]() {
                             setState(b);
                         });
                     }

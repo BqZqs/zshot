@@ -33,7 +33,7 @@ public slots:
       const CaptureRequest& req = CaptureRequest::GRAPHICAL_MODE);
     void requestCapture(const CaptureRequest& request);
     void exportCapture(const QPixmap& p,
-                       QRect& selection,
+                       const QRect& selection,
                        const CaptureRequest& req);
 
 signals:

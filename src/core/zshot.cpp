@@ -108,7 +108,7 @@ void Zshot::requestCapture(const CaptureRequest& request)
 }
 
 void Zshot::exportCapture(const QPixmap& capture,
-                              QRect& selection,
+                              const QRect& selection,
                               const CaptureRequest& req)
 {
     using CR = CaptureRequest;
