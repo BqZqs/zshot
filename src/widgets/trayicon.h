@@ -1,4 +1,5 @@
 #pragma once
+#include <QIcon>
 #include <QObject>
 class TrayIcon : public QObject {
     Q_OBJECT

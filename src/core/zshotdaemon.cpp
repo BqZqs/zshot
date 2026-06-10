@@ -6,6 +6,7 @@
 #include "utils/globalvalues.h"
 #include "utils/screenshotsaver.h"
 #include "widgets/capture/capturewidget.h"
+#include "widgets/trayicon.h"
 
 #include <QApplication>
 #include <QClipboard>
