@@ -4,8 +4,10 @@
 #include <QApplication>
 #include <QDebug>
 #include <QSocketNotifier>
+#ifndef Q_OS_WIN
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 int SignalDaemon::sigintFd[2];
 int SignalDaemon::sigtermFd[2];

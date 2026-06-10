@@ -43,6 +43,7 @@ target_compile_definitions(zshot PRIVATE
     ZSHOT_APP_VERSION_URL="none"
     USE_PORTABLE_CONFIG
     DISABLE_UPDATE_CHECKER
+    PREDEFINED_COLOR_PALETTE_LARGE=false
 )
 
 target_compile_features(zshot PRIVATE cxx_std_20)

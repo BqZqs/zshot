@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QIcon>
 #include <QObject>
 #include <QString>
 

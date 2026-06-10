@@ -126,7 +126,7 @@ void ZshotDaemon::createPin(const QPixmap& capture, QRect geometry)
     auto kdsa = KDSingleApplication(QStringLiteral("org.zshot.Zshot"));
     stream << QStringLiteral("attachPin") << capture << geometry;
     kdsa.sendMessage(data);
-#else
+#elif !(defined(Q_OS_MACOS) || defined(Q_OS_WIN))
     stream << capture << geometry;
     QDBusMessage m = createMethodCall(QStringLiteral("attachPin"));
     m << data;
@@ -149,7 +149,7 @@ void ZshotDaemon::copyToClipboard(const QPixmap& capture)
     auto kdsa = KDSingleApplication(QStringLiteral("org.zshot.Zshot"));
     stream << QStringLiteral("attachScreenshotToClipboard") << capture;
     kdsa.sendMessage(data);
-#else
+#elif !(defined(Q_OS_MACOS) || defined(Q_OS_WIN))
     stream << capture;
     QDBusMessage m =
       createMethodCall(QStringLiteral("attachScreenshotToClipboard"));
@@ -174,7 +174,7 @@ void ZshotDaemon::copyToClipboard(const QString& text,
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << QStringLiteral("attachTextToClipboard") << text << notification;
     kdsa.sendMessage(data);
-#else
+#elif !(defined(Q_OS_MACOS) || defined(Q_OS_WIN))
     auto m = createMethodCall(QStringLiteral("attachTextToClipboard"));
     m << text << notification;
     call(m);
