@@ -3,8 +3,6 @@
 
 #include "zshot.h"
 #include "core/zshotdaemon.h"
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-#endif
 
 #if defined(Q_OS_MACOS)
 #include <QWindow>
@@ -68,10 +66,6 @@ constexpr const char* visibleInDockProperty = "_visibleInDock";
 Zshot::Zshot()
   : m_haveExternalWidget(false)
   , m_captureWindow(nullptr)
-#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
-#endif
-#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
-#endif
 {
     QString StyleSheet = CaptureButton::globalStyleSheet();
     qApp->setStyleSheet(StyleSheet);

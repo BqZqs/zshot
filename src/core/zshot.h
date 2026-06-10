@@ -12,10 +12,6 @@
 
 class CaptureWidget;
 class QWidget;
-#ifdef ENABLE_IMGUR
-#endif
-#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
-#endif
 
 enum ErrCode : uint8_t
 {
@@ -48,8 +44,6 @@ public slots:
     void full(const CaptureRequest& req);
 
 
-#ifdef ENABLE_IMGUR
-#endif
 
     void openSavePath();
 
@@ -90,8 +84,4 @@ private:
     int m_dockIconVisibleCount = 0;
 #endif
 
-#if (defined(Q_OS_MACOS) || defined(Q_OS_WIN))
-#endif
-#if (defined(Q_OS_MACOS) && ENABLE_IMGUR)
-#endif
 };

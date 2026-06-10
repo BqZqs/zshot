@@ -1276,19 +1276,6 @@ void CaptureWidget::initPanel()
             &CaptureWidget::toolSizeChanged,
             m_sidePanel,
             &SidePanelWidget::onToolSizeChanged);
-    connect(m_sidePanel,
-            &SidePanelWidget::togglePanel,
-            m_panel,
-            &UtilityPanel::toggle);
-    connect(
-    connect(m_sidePanel,
-            &SidePanelWidget::displayGridChanged,
-            this,
-            &CaptureWidget::onDisplayGridChanged);
-    connect(m_sidePanel,
-            &SidePanelWidget::gridSizeChanged,
-            this,
-            &CaptureWidget::onGridSizeChanged);
     // TODO replace with a CaptureWidget signal
     emit m_sidePanel->colorChanged(m_context.color);
     emit toolSizeChanged(m_context.toolSize);
@@ -1645,8 +1632,6 @@ void CaptureWidget::initShortcuts()
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_TOGGLE_PANEL")),
                 this,
                 SLOT(togglePanel()));
-    newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_GRAB_COLOR")),
-                this,
 
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_RESIZE_LEFT")),
                 m_selection,

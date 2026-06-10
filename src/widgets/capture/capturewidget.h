@@ -37,7 +37,6 @@ class ColorPicker;
 class NotifierBox;
 class HoverEventFilter;
 #if !defined(DISABLE_UPDATE_CHECKER)
-#if !defined(DISABLE_UPDATE_CHECKER)
 class UpdateNotificationWidget;
 #endif
 #endif
@@ -56,7 +55,6 @@ public:
 
     QPixmap pixmap();
     void setCaptureToolObjects(const CaptureToolObjects& captureToolObjects);
-#if !defined(DISABLE_UPDATE_CHECKER)
 #if !defined(DISABLE_UPDATE_CHECKER)
     void showAppUpdateNotification(const QString& appLatestVersion,
                                    const QString& appLatestUrl);
@@ -187,7 +185,6 @@ private:
     bool m_configError;
     bool m_configErrorResolved;
 
-#if !defined(DISABLE_UPDATE_CHECKER)
 #if !defined(DISABLE_UPDATE_CHECKER)
     UpdateNotificationWidget* m_updateNotificationWidget;
 #endif
