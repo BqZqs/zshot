@@ -1,0 +1,126 @@
+name: Build and Release (Windows)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - 'docs/**'
+  workflow_dispatch:
+
+env:
+  PRODUCT: zshot
+
+jobs:
+  windows-build:
+    name: VS 2022 x64-portable
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        qt_ver: [6.5.3]
+        qt_target: [desktop]
+        qt_arch: win64_msvc2019_64
+        qt_arch_install: msvc2019_64
+        pak_arch: win64
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Version
+        shell: bash
+        run: |
+          VERSION=$(grep 'set.*ZSHOT_VERSION' CMakeLists.txt | sed 's/[^0-9.]*//' | sed 's/)//g')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          git_hash=$(git rev-parse --short HEAD)
+          echo "GIT_HASH=${git_hash}" >> $GITHUB_ENV
+          echo "======= ZSHOT VERSION ========"
+          echo "${VERSION}"
+          echo "================================"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt_ver }}
+          cache: 'true'
+          cache-key-prefix: install-qt-action-${{ matrix.qt_ver }}
+          target: ${{ matrix.qt_target }}
+          arch: ${{ matrix.qt_arch }}
+          modules: 'qtimageformats'
+          dir: '${{ github.workspace }}/build/'
+
+      - name: Configure CMake
+        working-directory: build
+        shell: pwsh
+        run: |
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DUSE_PORTABLE_CONFIG=ON
+
+      - name: Compile
+        working-directory: build
+        shell: pwsh
+        run: cmake --build . --config Release --parallel
+
+      - name: Package (ZIP)
+        working-directory: build
+        shell: pwsh
+        run: |
+          cpack -G ZIP -B "$env:GITHUB_WORKSPACE\build\Package"
+        env:
+          TYPE: portable
+
+      - name: Prepare Artifact
+        shell: pwsh
+        run: |
+          New-Item -Path $env:GITHUB_WORKSPACE\build\Package\portable -ItemType Directory -Force
+          Move-Item -Path $env:GITHUB_WORKSPACE/build/Package/zshot-*-${{ matrix.pak_arch }}.zip `
+            -Destination $env:GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
+
+      - name: SHA256 Checksum
+        shell: bash
+        run: |
+          sha256sum $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
+          sha256sum $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip > $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zshot-${{ env.VERSION }}-win-${{ matrix.pak_arch }}-portable
+          path: |
+            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
+            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
+          overwrite: true
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: zshot ${{ env.VERSION }}
+          body: |
+            ## zshot ${{ env.VERSION }}
+
+            丐版 flameshot - 轻量级 Windows 截图工具
+
+            ### 功能
+            - 自由绘制、马赛克、矩形/圆形工具
+            - Pin 截图到桌面
+            - 16 种预设颜色
+            - 像素风格界面，少女粉主题
+
+            ### 使用方法
+            解压后运行 `zshot.exe`
+          files: |
+            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
+            ${{ github.workspace }}/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
+          draft: false
+          prerelease: false

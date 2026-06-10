@@ -1,0 +1,39 @@
+# Tools module sources — includes all tool subdirectories
+set(TOOLS_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstractactiontool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstractactiontool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstractpathtool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstractpathtool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstracttwopointtool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/abstracttwopointtool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/capturecontext.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/capturetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/toolfactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/accept/accepttool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/accept/accepttool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/circle/circletool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/circle/circletool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/marker/markertool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/marker/markertool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/move/movetool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/move/movetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pencil/penciltool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pencil/penciltool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pin/pintool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pin/pintool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pin/pinwidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pin/pinwidget.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pixelate/pixelatetool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pixelate/pixelatetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rectangle/rectangletool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rectangle/rectangletool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sizedecrease/sizedecreasetool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sizedecrease/sizedecreasetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sizeincrease/sizeincreasetool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sizeincrease/sizeincreasetool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/undo/undotool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/undo/undotool.h
+)
+set(TOOLS_SOURCES ${TOOLS_SOURCES} PARENT_SCOPE)

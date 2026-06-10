@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/icons/pencil.svg</file>
+        <file>img/icons/marker.svg</file>
+        <file>img/icons/rectangle.svg</file>
+        <file>img/icons/circle.svg</file>
+        <file>img/icons/pixelate.svg</file>
+        <file>img/icons/pin.svg</file>
+        <file>img/icons/move.svg</file>
+        <file>img/icons/sizeincrease.svg</file>
+        <file>img/icons/sizedecrease.svg</file>
+        <file>img/icons/undo.svg</file>
+        <file>img/icons/accept.svg</file>
+        <file>img/icons/close.svg</file>
+        <file>img/icons/app.svg</file>
+        <file>img/icons/config.svg</file>
+        <file>img/icons/delete.svg</file>
+        <file>img/icons/move_up.svg</file>
+        <file>img/icons/move_down.svg</file>
+    </qresource>
+</RCC>

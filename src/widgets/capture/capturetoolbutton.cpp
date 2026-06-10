@@ -1,0 +1,162 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
+
+#include "capturetoolbutton.h"
+#include "tools/capturetool.h"
+#include "tools/toolfactory.h"
+#include "utils/confighandler.h"
+#include "utils/globalvalues.h"
+
+#include <QApplication>
+#include <QIcon>
+#include <QMouseEvent>
+#include <QPropertyAnimation>
+#include <QToolTip>
+
+// Button represents a single button of the capture widget, it can enable
+// multiple functionality.
+
+CaptureToolButton::CaptureToolButton(const CaptureTool::Type t, QWidget* parent)
+  : CaptureButton(parent)
+  , m_buttonType(t)
+  , m_tool(nullptr)
+  , m_emergeAnimation(nullptr)
+{
+    initButton();
+    updateIcon();
+}
+
+CaptureToolButton::~CaptureToolButton()
+{
+    if (m_tool) {
+        delete m_tool;
+        m_tool = nullptr;
+    }
+    if (m_emergeAnimation) {
+        delete m_emergeAnimation;
+        m_emergeAnimation = nullptr;
+    }
+}
+
+void CaptureToolButton::initButton()
+{
+    if (m_tool) {
+        delete m_tool;
+        m_tool = nullptr;
+    }
+    m_tool = ToolFactory().CreateTool(m_buttonType, this);
+
+    resize(GlobalValues::buttonBaseSize(), GlobalValues::buttonBaseSize());
+    setMask(QRegion(QRect(-1,
+                          -1,
+                          GlobalValues::buttonBaseSize() + 2,
+                          GlobalValues::buttonBaseSize() + 2),
+                    QRegion::Ellipse));
+
+    // Set a tooltip showing a shortcut in parentheses (if there is a shortcut)
+    QString tooltip = m_tool->description();
+    QString shortcut =
+      ConfigHandler().shortcut(QVariant::fromValue(m_buttonType).toString());
+    if (m_buttonType == CaptureTool::TYPE_COPY &&
+        ConfigHandler().copyOnDoubleClick()) {
+        tooltip += QStringLiteral(" (%1Left Double-Click)")
+                     .arg(shortcut.isEmpty() ? QString() : shortcut + " or ");
+    } else if (!shortcut.isEmpty()) {
+        tooltip += QStringLiteral(" (%1)").arg(shortcut);
+    }
+    tooltip.replace("Return", "Enter");
+    setToolTip(tooltip);
+
+    m_emergeAnimation = new QPropertyAnimation(this, "size", this);
+    m_emergeAnimation->setEasingCurve(QEasingCurve::InOutQuad);
+    m_emergeAnimation->setDuration(80);
+    m_emergeAnimation->setStartValue(QSize(0, 0));
+    m_emergeAnimation->setEndValue(
+      QSize(GlobalValues::buttonBaseSize(), GlobalValues::buttonBaseSize()));
+}
+
+void CaptureToolButton::updateIcon()
+{
+    setIcon(icon());
+    setIconSize(size() * 0.6);
+}
+
+const QList<CaptureTool::Type>& CaptureToolButton::getIterableButtonTypes()
+{
+    return iterableButtonTypes;
+}
+
+// get icon returns the icon for the type of button
+QIcon CaptureToolButton::icon() const
+{
+    return m_tool->icon(m_mainColor, true);
+}
+
+void CaptureToolButton::mousePressEvent(QMouseEvent* e)
+{
+    activateWindow();
+    if (e->button() == Qt::LeftButton) {
+        emit pressedButtonLeftClick(this);
+        emit pressed();
+    } else if (e->button() == Qt::RightButton) {
+        emit pressedButtonRightClick(this);
+        emit pressed();
+    }
+}
+
+void CaptureToolButton::animatedShow()
+{
+    if (!isVisible()) {
+        show();
+        m_emergeAnimation->start();
+        connect(m_emergeAnimation,
+                &QPropertyAnimation::finished,
+                this,
+                [this]() { updateIcon(); });
+    }
+}
+
+CaptureTool* CaptureToolButton::tool() const
+{
+    return m_tool;
+}
+
+void CaptureToolButton::setColor(const QColor& c)
+{
+    m_mainColor = c;
+    CaptureButton::setColor(c);
+    updateIcon();
+}
+
+QColor CaptureToolButton::m_mainColor;
+
+static std::map<CaptureTool::Type, int> buttonTypeOrder
+{
+    { CaptureTool::TYPE_PENCIL, 0 },
+    { CaptureTool::TYPE_RECTANGLE, 1 },
+    { CaptureTool::TYPE_CIRCLE, 2 },
+    { CaptureTool::TYPE_MARKER, 3 },
+    { CaptureTool::TYPE_PIXELATE, 4 },
+    { CaptureTool::TYPE_MOVESELECTION, 5 },
+    { CaptureTool::TYPE_UNDO, 6 },
+    { CaptureTool::TYPE_PIN, 7 },
+    { CaptureTool::TYPE_SIZEINCREASE, 8 },
+    { CaptureTool::TYPE_SIZEDECREASE, 9 },
+    { CaptureTool::TYPE_ACCEPT, 10 },
+};
+
+int CaptureToolButton::getPriorityByButton(CaptureTool::Type b)
+{
+    auto it = buttonTypeOrder.find(b);
+    return it == buttonTypeOrder.cend() ? (int)buttonTypeOrder.size()
+                                        : it->second;
+}
+
+QList<CaptureTool::Type> CaptureToolButton::iterableButtonTypes = {
+    CaptureTool::TYPE_PENCIL,        CaptureTool::TYPE_RECTANGLE,
+    CaptureTool::TYPE_CIRCLE,        CaptureTool::TYPE_MARKER,
+    CaptureTool::TYPE_PIXELATE,      CaptureTool::TYPE_MOVESELECTION,
+    CaptureTool::TYPE_UNDO,          CaptureTool::TYPE_PIN,
+    CaptureTool::TYPE_SIZEINCREASE,  CaptureTool::TYPE_SIZEDECREASE,
+    CaptureTool::TYPE_ACCEPT,
+};
