@@ -11,7 +11,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
-      - 'docs/**'
   workflow_dispatch:
 
 env:
@@ -26,8 +25,8 @@ jobs:
       matrix:
         qt_ver: [6.5.3]
         qt_target: [desktop]
-        qt_arch: win64_msvc2019_64
-        qt_arch_install: msvc2019_64
+        qt_arch: win64_msvc2022_64
+        qt_arch_install: msvc2022_64
         pak_arch: win64
 
     steps:
@@ -56,13 +55,18 @@ jobs:
           target: ${{ matrix.qt_target }}
           arch: ${{ matrix.qt_arch }}
           modules: 'qtimageformats'
-          dir: '${{ github.workspace }}/build/'
+          dir: '${{ github.workspace }}/Qt/'
+
+      - name: Create Build Dir
+        shell: pwsh
+        run: New-Item -Path $env:GITHUB_WORKSPACE\build -ItemType Directory -Force
 
       - name: Configure CMake
         working-directory: build
         shell: pwsh
         run: |
           cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_PREFIX_PATH="$env:GITHUB_WORKSPACE\Qt\${{ matrix.qt_ver }}\${{ matrix.qt_arch_install }}" `
             -DCMAKE_BUILD_TYPE=Release `
             -DUSE_PORTABLE_CONFIG=ON
 
@@ -76,21 +80,19 @@ jobs:
         shell: pwsh
         run: |
           cpack -G ZIP -B "$env:GITHUB_WORKSPACE\build\Package"
-        env:
-          TYPE: portable
 
       - name: Prepare Artifact
         shell: pwsh
         run: |
-          New-Item -Path $env:GITHUB_WORKSPACE\build\Package\portable -ItemType Directory -Force
-          Move-Item -Path $env:GITHUB_WORKSPACE/build/Package/zshot-*-${{ matrix.pak_arch }}.zip `
-            -Destination $env:GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
+          New-Item -Path "$env:GITHUB_WORKSPACE\build\Package\portable" -ItemType Directory -Force
+          Move-Item -Path "$env:GITHUB_WORKSPACE\build\Package\zshot-*-${{ matrix.pak_arch }}.zip" `
+            -Destination "$env:GITHUB_WORKSPACE\build\Package\portable\zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip"
 
       - name: SHA256 Checksum
         shell: bash
         run: |
-          sha256sum $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip
-          sha256sum $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip > $GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum
+          sha256sum "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip" || true
+          sha256sum "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip" > "$GITHUB_WORKSPACE/build/Package/portable/zshot-${{ env.VERSION }}-${{ matrix.pak_arch }}.zip.sha256sum" || true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
