@@ -64,4 +64,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: zshot ${{ env.VERSION }}
-          files: build/zshot-*-win64.zip
+          files: zshot-*-win64.zip
