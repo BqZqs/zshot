@@ -92,8 +92,6 @@ private slots:
     void onDisplayGridChanged(bool display);
     void onGridSizeChanged(int size);
 
-    void startColorGrab();
-
 public:
     void removeToolObject(int index = -1);
     void showxywh();
